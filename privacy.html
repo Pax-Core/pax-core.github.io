@@ -22,17 +22,28 @@
 <li>Журнал дій адміністраторів (хто й коли оголосив тривогу, схвалив пристрій тощо).</li>
 </ul>
 
+<h2>Навіщо</h2>
+<p>Лише щоб доставляти тривоги й відбій, показувати адміністраторам, хто в укритті, і захищати сервер від зловживань. Для інших цілей дані не використовуються.</p>
+
 <h2>Чого ми не збираємо</h2>
-<p>Пошту, номер телефона, контакти, геолокацію, рекламні ідентифікатори. Аналітики й стеження немає. Дані не продаються й не передаються третім особам.</p>
+<p>Пошту, номер телефона, контакти, геолокацію, рекламні ідентифікатори. Аналітики й стеження немає. IP-адреса використовується лише в пам’яті сервера для захисту від перебору паролів і не зберігається. Дані не продаються й не передаються третім особам, крім постачальників, без яких сервіс не працює (нижче).</p>
 
 <h2>Пуші</h2>
 <p>Сповіщення доставляють Apple Push Notification service (iPhone) і Google Firebase Cloud Messaging (Android). Вміст тривоги зашифровано окремо для кожного телефона: Apple і Google бачать лише нейтральний текст.</p>
 
-<h2>Де зберігаються дані</h2>
-<p>На нашому сервері в ЄС (Франкфурт), з резервними копіями. Зв’язок із сервером — лише HTTPS із перевіркою нашого сертифіката.</p>
+<h2>Де й скільки зберігаються дані</h2>
+<p>На нашому сервері в ЄС (Франкфурт) у DigitalOcean. Зв’язок із сервером — лише HTTPS із перевіркою нашого сертифіката.</p>
+<ul>
+<li>Дані акаунта — поки акаунт існує.</li>
+<li>Історія тривог і відповідей — 30, 60 або 90 днів (налаштовує адміністратор сервера), потім видаляється автоматично.</li>
+<li>Резервні копії зберігаються обмежений час (до кількох тижнів) і перезаписуються.</li>
+</ul>
 
 <h2>Видалення акаунта</h2>
 <p>У застосунку: Профіль → «Видалити акаунт» (з підтвердженням паролем). Членство в серверах і ваші відповіді на тривоги видаляються, пристрої відключаються. Записи журналу дій адміністраторів можуть зберігатися для безпеки.</p>
+
+<h2>Зміни політики</h2>
+<p>Про суттєві зміни повідомимо в застосунку. Дата останнього оновлення — вгорі сторінки.</p>
 
 <h2>Контакт</h2>
 <p><a href="mailto:aceucav@gmail.com">aceucav@gmail.com</a></p>
@@ -42,10 +53,12 @@
 <div lang="en">
 <p>Pax.alert is developed and operated by Oleksii Osadchyi (individual developer), Ukraine.</p>
 <p><strong>What we store:</strong> your login, a password hash, the call sign you choose, the servers and rooms you joined, your responses to alerts, technical data needed to deliver alerts (push token, device model, app version, public encryption and signing keys, notification permission state), and an audit log of administrative actions.</p>
-<p><strong>What we do not collect:</strong> email, phone number, contacts, location, advertising identifiers. No analytics or tracking. Data is not sold or shared with third parties.</p>
+<p><strong>Purpose:</strong> data is used only to deliver alerts and all-clear messages, to show administrators who is in a shelter, and to protect the server from abuse.</p>
+<p><strong>What we do not collect:</strong> email, phone number, contacts, location, advertising identifiers. No analytics or tracking. IP addresses are used only in server memory for brute-force protection and are not stored. Data is not sold or shared with third parties other than the service providers listed here.</p>
 <p><strong>Push notifications</strong> are delivered via Apple Push Notification service and Google Firebase Cloud Messaging. Alert content is encrypted for each device; Apple and Google see only a neutral text.</p>
-<p><strong>Storage:</strong> our server in the EU (Frankfurt), with backups. Connections use HTTPS pinned to our certificate.</p>
+<p><strong>Storage and retention:</strong> our server in the EU (Frankfurt), hosted by DigitalOcean; connections use HTTPS pinned to our certificate. Account data is kept while the account exists. Alert history and responses are deleted automatically after 30, 60 or 90 days (set by the server administrator). Backups are kept for a limited time (up to a few weeks) and then overwritten.</p>
 <p><strong>Account deletion:</strong> in the app, Profile → Delete account. Memberships and alert responses are removed and devices are disconnected. Administrative audit records may be retained for security.</p>
+<p><strong>Changes:</strong> we will announce material changes in the app; the date of the last update is shown at the top of this page.</p>
 <p><strong>Contact:</strong> <a href="mailto:aceucav@gmail.com">aceucav@gmail.com</a></p>
 </div>
 <nav><a href="/">Головна</a><a href="/privacy">Конфіденційність</a><a href="/support">Підтримка</a></nav>
