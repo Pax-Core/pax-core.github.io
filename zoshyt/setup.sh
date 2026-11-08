@@ -3,9 +3,8 @@
 # Запуск: curl -fsSL https://pax-core.github.io/zoshyt/setup.sh | bash
 # Скрипт можна запускати повторно — він продовжить з того місця, де зупинився.
 set -e
-REPO="git@github.com:Pax-Core/Zoshyt-app.git"
+SRC="https://pax-core.github.io/zoshyt/push"
 BASE=/opt/zoshyt
-KEY=$BASE/deploy_key
 
 [ "$(id -u)" = 0 ] || { echo "Запустіть від root (sudo -i)"; exit 1; }
 mkdir -p $BASE
@@ -25,25 +24,7 @@ if ! command -v node >/dev/null || [ "$(node -v | cut -d. -f1 | tr -d v)" -lt 20
   curl -fsSL https://deb.nodesource.com/setup_20.x | bash - >/dev/null
   apt-get install -y -qq nodejs >/dev/null
 fi
-command -v git >/dev/null || apt-get install -y -qq git >/dev/null
 echo "  node $(node -v)"
-
-# Ключ доступу до репозиторію (лише читання)
-[ -f $KEY ] || ssh-keygen -q -t ed25519 -N "" -f $KEY -C "zoshyt-server"
-export GIT_SSH_COMMAND="ssh -i $KEY -o StrictHostKeyChecking=accept-new -o BatchMode=yes"
-if ! git ls-remote "$REPO" >/dev/null 2>&1; then
-  echo
-  echo "════════ КРОК 1 з 2 ════════"
-  echo "Додайте цей ключ у GitHub:"
-  echo "  github.com/Pax-Core/Zoshyt-app → Settings → Deploy keys → Add deploy key"
-  echo "  Title: zoshyt-server   (галочку «Allow write access» НЕ ставити)"
-  echo
-  cat $KEY.pub
-  echo
-  echo "Потім запустіть ту саму команду ще раз."
-  exit 0
-fi
-echo "  доступ до репозиторію — є"
 
 # Ключ Firebase (сервісний акаунт)
 if [ ! -s $BASE/sa.json ]; then
@@ -60,12 +41,9 @@ if ! node -e "const j=JSON.parse(require('fs').readFileSync('$BASE/sa.json','utf
 fi
 echo "  ключ Firebase — є"
 
-# Код
-if [ -d $BASE/app/.git ]; then
-  git -C $BASE/app fetch -q --depth 1 origin main && git -C $BASE/app reset -q --hard origin/main
-else
-  git clone -q --depth 1 "$REPO" $BASE/app
-fi
+# Код сервісу (публічний, без секретів)
+mkdir -p $BASE/app/server/push
+for f in index.js package.json; do curl -fsSL "$SRC/$f" -o "$BASE/app/server/push/$f"; done
 (cd $BASE/app/server/push && npm install --omit=dev --no-audit --no-fund --loglevel=error >/dev/null)
 echo "  код — оновлено"
 
@@ -93,16 +71,17 @@ UNIT
 
 cat > $BASE/update.sh <<'UPD'
 #!/usr/bin/env bash
-export GIT_SSH_COMMAND="ssh -i /opt/zoshyt/deploy_key -o StrictHostKeyChecking=accept-new -o BatchMode=yes"
-cd /opt/zoshyt/app || exit 0
-OLD=$(git rev-parse HEAD)
-git fetch -q --depth 1 origin main && git reset -q --hard origin/main || exit 0
-NEW=$(git rev-parse HEAD)
-if [ "$OLD" != "$NEW" ]; then
-  (cd server/push && npm install --omit=dev --no-audit --no-fund --loglevel=error >/dev/null)
+# Перевіряє оновлення коду на pax-core.github.io і перезапускає сервіс, якщо щось змінилось.
+D=/opt/zoshyt/app/server/push
+T=$(mktemp -d)
+for f in index.js package.json; do curl -fsSL "https://pax-core.github.io/zoshyt/push/$f" -o "$T/$f" || exit 0; done
+if ! cmp -s "$T/index.js" "$D/index.js" || ! cmp -s "$T/package.json" "$D/package.json"; then
+  cp "$T/index.js" "$T/package.json" "$D/"
+  (cd "$D" && npm install --omit=dev --no-audit --no-fund --loglevel=error >/dev/null)
   systemctl restart zoshyt-push
-  echo "оновлено до $NEW"
+  echo "оновлено"
 fi
+rm -rf "$T"
 UPD
 chmod +x $BASE/update.sh
 
