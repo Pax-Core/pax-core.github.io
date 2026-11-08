@@ -24,7 +24,8 @@ async function notify(uid, title, body, data = {}) {
     if (c === "messaging/registration-token-not-registered" || c === "messaging/invalid-registration-token") dead.push(tokens[i]);
   });
   if (dead.length) await user.ref.update({ fcmTokens: admin.firestore.FieldValue.arrayRemove(...dead) });
-  log("пуш", title, "→", uid, `${res.successCount}/${tokens.length}`);
+  const errs = [...new Set(res.responses.filter((r) => r.error).map((r) => `${r.error.code}: ${r.error.message}`))];
+  log("пуш", title, "→", uid, `${res.successCount}/${tokens.length}`, errs.length ? "| помилка: " + errs.join("; ") : "");
 }
 
 const ms = (t) => (t && t.toMillis ? t.toMillis() : 0);
