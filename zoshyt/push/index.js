@@ -46,6 +46,8 @@ async function onChange(id, before, after) {
     jobs.push(notify(after.ownerUid, `Звіт від ${after.assigneeName || "виконавця"}`, `${after.title}: ${after.report}`, { taskId: id, kind: "report" }));
   if (byOwner && (ms(before.due) !== ms(after.due) || ms(before.deadline) !== ms(after.deadline)))
     jobs.push(notify(after.assigneeUid, "Змінено термін доручення", after.title + when(after.deadline || after.due), { taskId: id, kind: "due" }));
+  if (byOwner && before.delegStatus !== after.delegStatus && !(after.done && !before.done))
+    jobs.push(notify(after.assigneeUid, `${after.ownerName || "Керівник"}: ${STATUS[after.delegStatus] || after.delegStatus}`, after.title, { taskId: id, kind: "status" }));
   if (byOwner && before.title !== after.title)
     jobs.push(notify(after.assigneeUid, "Доручення змінено", after.title, { taskId: id, kind: "edit" }));
   return Promise.all(jobs);
@@ -70,4 +72,32 @@ function listen() {
   });
 }
 listen();
+
+// коментарі й фото до доручень
+let notesReady = false;
+function listenNotes() {
+  db.collectionGroup("notes").onSnapshot((snap) => {
+    if (!notesReady) { notesReady = true; log("коментарі: слухаю"); return; }
+    snap.docChanges().forEach(async (ch) => {
+      if (ch.type !== "added") return;
+      const n = ch.doc.data();
+      const taskRef = ch.doc.ref.parent.parent;
+      if (!taskRef || taskRef.parent.id !== "tasks") return;
+      try {
+        const t = state.get(taskRef.id) || (await taskRef.get()).data();
+        if (!t) return;
+        const to = n.by === t.ownerUid ? t.assigneeUid : t.ownerUid;
+        const who = n.byName || (n.by === t.ownerUid ? t.ownerName : t.assigneeName) || "Хтось";
+        const title = n.kind === "accept" ? `${who}: роботу прийнято ✓` : n.kind === "return" ? `${who}: повернуто на доопрацювання` : (n.photo ? `📷 ${who}` : `💬 ${who}`);
+        const body = t.title + (n.text ? ` — ${n.text}` : (n.photo ? " — фото" : ""));
+        await notify(to, title, body, { taskId: taskRef.id, kind: "note" });
+      } catch (e) { log("помилка коментаря", e.message); }
+    });
+  }, (err) => {
+    log("слухач коментарів упав:", err.message, "— перезапуск за 10 с");
+    notesReady = false;
+    setTimeout(listenNotes, 10000);
+  });
+}
+listenNotes();
 setInterval(() => log("працюю, доручень:", state.size), 6 * 3600 * 1000);
