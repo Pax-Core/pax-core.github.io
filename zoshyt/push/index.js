@@ -100,4 +100,39 @@ function listenNotes() {
   });
 }
 listenNotes();
+
+// спільні списки: повідомити інших учасників
+let itemsReady = false;
+const itemDone = new Map();
+function listenItems() {
+  db.collectionGroup("items").onSnapshot((snap) => {
+    if (!itemsReady) {
+      snap.docs.forEach((d) => itemDone.set(d.ref.path, !!d.data().done));
+      itemsReady = true; log("спільні списки: слухаю"); return;
+    }
+    snap.docChanges().forEach(async (ch) => {
+      const it = ch.doc.data();
+      const wasDone = itemDone.get(ch.doc.ref.path) || false;
+      if (ch.type === "removed") itemDone.delete(ch.doc.ref.path); else itemDone.set(ch.doc.ref.path, !!it.done);
+      const listRef = ch.doc.ref.parent.parent;
+      if (!listRef || listRef.parent.id !== "lists" || ch.type === "removed") return;
+      try {
+        const l = (await listRef.get()).data();
+        if (!l) return;
+        const who = it.updatedByName || (l.memberNames || {})[it.updatedBy] || "Хтось";
+        let title = null;
+        if (ch.type === "added") title = `${who} додає в «${l.name}»`;
+        else if (it.done && !wasDone) title = `${who} виконує ✓ «${l.name}»`;
+        if (!title) return;
+        const others = (l.members || []).filter((m) => m !== it.updatedBy);
+        await Promise.all(others.map((m) => notify(m, title, it.title, { listId: listRef.id, kind: "shared" })));
+      } catch (e) { log("помилка списку", e.message); }
+    });
+  }, (err) => {
+    log("слухач списків упав:", err.message, "— перезапуск за 10 с");
+    itemsReady = false;
+    setTimeout(listenItems, 10000);
+  });
+}
+listenItems();
 setInterval(() => log("працюю, доручень:", state.size), 6 * 3600 * 1000);
