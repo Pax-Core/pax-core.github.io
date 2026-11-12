@@ -1,6 +1,6 @@
 {
-  "versionCode": 13,
-  "versionName": "1.0.13",
-  "url": "https://github.com/Pax-Core/pax-core.github.io/releases/download/zoshyt-android-1.0.13/Zoshyt-1.0.13.apk",
-  "notes": "Android: виправлення з перевірки (нагадування на холодному старті, збереження при закритті, синхронізація чек-листів і спільних списків, розбір днів, оновлення,"
+  "versionCode": 14,
+  "versionName": "1.0.14",
+  "url": "https://github.com/Pax-Core/pax-core.github.io/releases/download/zoshyt-android-1.0.14/Zoshyt-1.0.14.apk",
+  "notes": "Тести розбору для iPhone, повна резервна копія з автозбереженням (iOS і Android)"
 }
