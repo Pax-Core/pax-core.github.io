@@ -44,11 +44,12 @@ echo "  ключ Firebase — є"
 # Код сервісу (публічний, без секретів)
 mkdir -p $BASE/app/server/push
 for f in index.js package.json; do curl -fsSL "$SRC/$f" -o "$BASE/app/server/push/$f"; done
-(cd $BASE/app/server/push && npm install --omit=dev --no-audit --no-fund --loglevel=error >/dev/null)
-echo "  код — оновлено"
-
 id zoshyt >/dev/null 2>&1 || useradd -r -s /usr/sbin/nologin zoshyt
 chown zoshyt $BASE/sa.json && chmod 600 $BASE/sa.json
+mkdir -p $BASE/home && chown -R zoshyt $BASE/app $BASE/home
+# залежності ставимо від імені сервісного користувача і без install-скриптів пакетів (не від root)
+(cd $BASE/app/server/push && HOME=$BASE/home runuser -u zoshyt -- npm install --omit=dev --ignore-scripts --no-audit --no-fund --loglevel=error >/dev/null)
+echo "  код — оновлено"
 
 cat > /etc/systemd/system/zoshyt-push.service <<'UNIT'
 [Unit]
@@ -64,6 +65,18 @@ ExecStart=/usr/bin/node index.js
 Restart=always
 RestartSec=5
 MemoryMax=300M
+# обмеження: сервіс не може змінювати систему чи отримати більше прав
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+PrivateDevices=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictSUIDSGID=true
+ReadWritePaths=/opt/zoshyt/app/server/push
+CapabilityBoundingSet=
 
 [Install]
 WantedBy=multi-user.target
@@ -74,10 +87,12 @@ cat > $BASE/update.sh <<'UPD'
 # Перевіряє оновлення коду на pax-core.github.io і перезапускає сервіс, якщо щось змінилось.
 D=/opt/zoshyt/app/server/push
 T=$(mktemp -d)
-for f in index.js package.json; do curl -fsSL "https://pax-core.github.io/zoshyt/push/$f" -o "$T/$f" || exit 0; done
+for f in index.js package.json; do curl -fsSL --proto '=https' "https://pax-core.github.io/zoshyt/push/$f" -o "$T/$f" || exit 0; done
+node --check "$T/index.js" || exit 0
 if ! cmp -s "$T/index.js" "$D/index.js" || ! cmp -s "$T/package.json" "$D/package.json"; then
-  cp "$T/index.js" "$T/package.json" "$D/"
-  (cd "$D" && npm install --omit=dev --no-audit --no-fund --loglevel=error >/dev/null)
+  install -o zoshyt -m 644 "$T/index.js" "$T/package.json" "$D/"
+  # не від root і без install-скриптів пакетів
+  (cd "$D" && HOME=/opt/zoshyt/home runuser -u zoshyt -- npm install --omit=dev --ignore-scripts --no-audit --no-fund --loglevel=error >/dev/null)
   systemctl restart zoshyt-push
   echo "оновлено"
 fi
