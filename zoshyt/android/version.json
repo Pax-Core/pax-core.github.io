@@ -1,6 +1,6 @@
 {
-  "versionCode": 7,
-  "versionName": "1.0.7",
-  "url": "https://github.com/Pax-Core/pax-core.github.io/releases/download/zoshyt-android-1.0.7/Zoshyt-1.0.7.apk",
-  "notes": "Android: оновлення як у TestFlight (банер, встановлення в один дотик, пуш про нову версію)"
+  "versionCode": 8,
+  "versionName": "1.0.8",
+  "url": "https://github.com/Pax-Core/pax-core.github.io/releases/download/zoshyt-android-1.0.8/Zoshyt-1.0.8.apk",
+  "notes": "Android 2: брифи (обовʼязкові, відкладення, огляд завтра, озвучення), звички, клієнти, гроші, фокус, голосові команди"
 }
