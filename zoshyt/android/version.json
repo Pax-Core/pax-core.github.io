@@ -1,6 +1,6 @@
 {
-  "versionCode": 9,
-  "versionName": "1.0.9",
-  "url": "https://github.com/Pax-Core/pax-core.github.io/releases/download/zoshyt-android-1.0.9/Zoshyt-1.0.9.apk",
-  "notes": "Безпека: правила Firestore (профілі, одноразові коди, учасники списків), перевірка підпису оновлення Android, захист сервера; iOS: накладання в «Доручено»; Andr"
+  "versionCode": 10,
+  "versionName": "1.0.10",
+  "url": "https://github.com/Pax-Core/pax-core.github.io/releases/download/zoshyt-android-1.0.10/Zoshyt-1.0.10.apk",
+  "notes": "Android: підтвердження видалення утриманням, екран «Ще» як в iOS"
 }
