@@ -135,4 +135,27 @@ function listenItems() {
   });
 }
 listenItems();
+
+// нова версія Android → пуш усім (тема android-updates)
+const fs = require("fs");
+const verFile = require("path").join(__dirname, "android-version.txt");
+async function checkAndroid() {
+  try {
+    const r = await fetch("https://pax-core.github.io/zoshyt/android/version.json?t=" + Date.now());
+    if (!r.ok) return;
+    const v = await r.json();
+    const last = fs.existsSync(verFile) ? parseInt(fs.readFileSync(verFile, "utf8")) || 0 : 0;
+    if (v.versionCode > last) {
+      fs.writeFileSync(verFile, String(v.versionCode));
+      if (last > 0) {
+        await admin.messaging().send({ topic: "android-updates",
+          notification: { title: `Зошит ${v.versionName} — доступне оновлення`, body: v.notes || "Відкрийте застосунок і натисніть «Оновити»" },
+          android: { priority: "high", notification: { channelId: "delegations" } } });
+        log("пуш про оновлення Android", v.versionName);
+      }
+    }
+  } catch (e) { log("перевірка версії Android:", e.message); }
+}
+checkAndroid();
+setInterval(checkAndroid, 10 * 60 * 1000);
 setInterval(() => log("працюю, доручень:", state.size), 6 * 3600 * 1000);
