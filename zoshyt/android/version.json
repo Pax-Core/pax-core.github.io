@@ -1,6 +1,6 @@
 {
-  "versionCode": 17,
-  "versionName": "1.0.17",
-  "url": "https://github.com/Pax-Core/pax-core.github.io/releases/download/zoshyt-android-1.0.17/Zoshyt-1.0.17.apk",
-  "notes": "Команда: поле коду приймає 9 цифр (iOS і Android)"
+  "versionCode": 18,
+  "versionName": "1.0.18",
+  "url": "https://github.com/Pax-Core/pax-core.github.io/releases/download/zoshyt-android-1.0.18/Zoshyt-1.0.18.apk",
+  "notes": "Місце в задачі: окремий розділ, вибір точки на карті, точка передається виконавцю доручення (iOS; Android показує й відкриває)"
 }
