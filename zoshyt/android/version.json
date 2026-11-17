@@ -1,6 +1,6 @@
 {
-  "versionCode": 16,
-  "versionName": "1.0.16",
-  "url": "https://github.com/Pax-Core/pax-core.github.io/releases/download/zoshyt-android-1.0.16/Zoshyt-1.0.16.apk",
-  "notes": "Android: «15 грудня» і «!2» у розборі; обмеження часу тестів iOS"
+  "versionCode": 17,
+  "versionName": "1.0.17",
+  "url": "https://github.com/Pax-Core/pax-core.github.io/releases/download/zoshyt-android-1.0.17/Zoshyt-1.0.17.apk",
+  "notes": "Команда: поле коду приймає 9 цифр (iOS і Android)"
 }
