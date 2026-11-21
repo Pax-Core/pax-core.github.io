@@ -1,6 +1,6 @@
 {
-  "versionCode": 22,
-  "versionName": "1.0.22",
-  "url": "https://github.com/Pax-Core/pax-core.github.io/releases/download/zoshyt-android-1.0.22/Zoshyt-1.0.22.apk",
-  "notes": "Велике оновлення: сторінки й групування задач, історія оновлень, окремі резервні копії, очищення чату, підказки в «Ще», без клієнтів і грошей; виправлено падінн"
+  "versionCode": 23,
+  "versionName": "1.0.23",
+  "url": "https://github.com/Pax-Core/pax-core.github.io/releases/download/zoshyt-android-1.0.23/Zoshyt-1.0.23.apk",
+  "notes": "Вкладка «Команда» з лічильником активних, плитки статусів, єдиний «Звіт», сповіщення про пункти чек-листа; Android: клавіатура не закриває підказки, швидкі кноп"
 }
