@@ -86,6 +86,7 @@ function listenNotes() {
     snap.docChanges().forEach(async (ch) => {
       if (ch.type !== "added") return;
       const n = ch.doc.data();
+      if (n.group && n.gi > 0) return;   // стос фото: одне сповіщення на всю відправку
       const taskRef = ch.doc.ref.parent.parent;
       if (!taskRef || taskRef.parent.id !== "tasks") return;
       try {
@@ -94,7 +95,7 @@ function listenNotes() {
         const to = n.by === t.ownerUid ? t.assigneeUid : t.ownerUid;
         const who = n.byName || (n.by === t.ownerUid ? t.ownerName : t.assigneeName) || "Хтось";
         const title = n.kind === "accept" ? `${who}: роботу прийнято ✓` : n.kind === "return" ? `${who}: повернуто на доопрацювання` : (n.photo ? `📷 ${who}` : `💬 ${who}`);
-        const body = t.title + (n.text ? ` — ${n.text}` : (n.photo ? " — фото" : ""));
+        const body = t.title + (n.gn > 1 ? ` — ${n.gn} фото` : "") + (n.text ? ` — ${n.text}` : (n.photo && !(n.gn > 1) ? " — фото" : ""));
         await notify(to, title, body, { taskId: taskRef.id, kind: "note" });
       } catch (e) { log("помилка коментаря", e.message); }
     });
