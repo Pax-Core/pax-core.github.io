@@ -43,6 +43,14 @@ async function onChange(id, before, after) {
   const jobs = [];
   if (byAssignee && before.delegStatus !== after.delegStatus)
     jobs.push(notify(after.ownerUid, `${after.assigneeName || "Виконавець"}: ${STATUS[after.delegStatus] || after.delegStatus}`, after.title, { taskId: id, kind: "status" }));
+  // крок чек-листа: виконавець закрив або відкрив пункт
+  const doneSubs = (s) => (Array.isArray(s) ? s.filter((x) => x && x.done).length : 0);
+  const total = Array.isArray(after.subs) ? after.subs.length : 0;
+  if (byAssignee && total > 0 && doneSubs(before.subs) !== doneSubs(after.subs) && before.delegStatus === after.delegStatus) {
+    const closed = (after.subs || []).find((x, i) => x && x.done && !((before.subs || [])[i] || {}).done);
+    jobs.push(notify(after.ownerUid, `${after.assigneeName || "Виконавець"}: пункти ${doneSubs(after.subs)} з ${total}`,
+      after.title + (closed && closed.title ? ` — ${closed.title}` : ""), { taskId: id, kind: "status" }));
+  }
   if (byAssignee && after.report && after.report !== (before.report || ""))
     jobs.push(notify(after.ownerUid, `Звіт від ${after.assigneeName || "виконавця"}`, `${after.title}: ${after.report}`, { taskId: id, kind: "report" }));
   // власник натиснув «Застосувати зміни»: одне сповіщення з переліком того, що змінено
