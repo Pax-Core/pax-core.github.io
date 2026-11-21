@@ -1,6 +1,6 @@
 {
-  "versionCode": 18,
-  "versionName": "1.0.18",
-  "url": "https://github.com/Pax-Core/pax-core.github.io/releases/download/zoshyt-android-1.0.18/Zoshyt-1.0.18.apk",
-  "notes": "Місце в задачі: окремий розділ, вибір точки на карті, точка передається виконавцю доручення (iOS; Android показує й відкриває)"
+  "versionCode": 21,
+  "versionName": "1.0.21",
+  "url": "https://github.com/Pax-Core/pax-core.github.io/releases/download/zoshyt-android-1.0.21/Zoshyt-1.0.21.apk",
+  "notes": "Звіт: до 20 фото одним повідомленням, стос фото в чаті"
 }
