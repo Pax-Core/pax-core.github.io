@@ -44,11 +44,15 @@ async function onChange(id, before, after) {
     jobs.push(notify(after.ownerUid, `${after.assigneeName || "Виконавець"}: ${STATUS[after.delegStatus] || after.delegStatus}`, after.title, { taskId: id, kind: "status" }));
   if (byAssignee && after.report && after.report !== (before.report || ""))
     jobs.push(notify(after.ownerUid, `Звіт від ${after.assigneeName || "виконавця"}`, `${after.title}: ${after.report}`, { taskId: id, kind: "report" }));
-  if (byOwner && (ms(before.due) !== ms(after.due) || ms(before.deadline) !== ms(after.deadline)))
+  // власник натиснув «Застосувати зміни»: одне сповіщення з переліком того, що змінено
+  const applied = byOwner && after.changeSeq && after.changeSeq !== before.changeSeq;
+  if (applied)
+    jobs.push(notify(after.assigneeUid, `${after.ownerName || "Керівник"} змінив доручення`, `${after.title}\n${after.changeNote || "Перегляньте оновлені деталі"}`, { taskId: id, kind: "edit" }));
+  if (!applied && byOwner && (ms(before.due) !== ms(after.due) || ms(before.deadline) !== ms(after.deadline)))
     jobs.push(notify(after.assigneeUid, "Змінено термін доручення", after.title + when(after.deadline || after.due), { taskId: id, kind: "due" }));
   if (byOwner && before.delegStatus !== after.delegStatus && !(after.done && !before.done))
     jobs.push(notify(after.assigneeUid, `${after.ownerName || "Керівник"}: ${STATUS[after.delegStatus] || after.delegStatus}`, after.title, { taskId: id, kind: "status" }));
-  if (byOwner && before.title !== after.title)
+  if (!applied && byOwner && before.title !== after.title)
     jobs.push(notify(after.assigneeUid, "Доручення змінено", after.title, { taskId: id, kind: "edit" }));
   return Promise.all(jobs);
 }
