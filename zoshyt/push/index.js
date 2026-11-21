@@ -5,7 +5,8 @@ const path = require("path");
 
 admin.initializeApp({ credential: admin.credential.cert(require(process.env.SA_PATH || path.join(__dirname, "../../../sa.json"))) });
 const db = admin.firestore();
-const STATUS = { assigned: "доручено", progress: "в роботі", done: "виконано" };
+const STATUS = { assigned: "надіслано", received: "підтвердив отримання", progress: "взяв у роботу", review: "здав на перевірку", done: "виконано" };
+const OWNER_SAYS = { progress: "повернув у роботу", done: "прийняв роботу" };
 const log = (...a) => console.log(new Date().toISOString(), ...a);
 
 async function notify(uid, title, body, data = {}) {
@@ -50,8 +51,8 @@ async function onChange(id, before, after) {
     jobs.push(notify(after.assigneeUid, `${after.ownerName || "Керівник"} змінив доручення`, `${after.title}\n${after.changeNote || "Перегляньте оновлені деталі"}`, { taskId: id, kind: "edit" }));
   if (!applied && byOwner && (ms(before.due) !== ms(after.due) || ms(before.deadline) !== ms(after.deadline)))
     jobs.push(notify(after.assigneeUid, "Змінено термін доручення", after.title + when(after.deadline || after.due), { taskId: id, kind: "due" }));
-  if (byOwner && before.delegStatus !== after.delegStatus && !(after.done && !before.done))
-    jobs.push(notify(after.assigneeUid, `${after.ownerName || "Керівник"}: ${STATUS[after.delegStatus] || after.delegStatus}`, after.title, { taskId: id, kind: "status" }));
+  if (byOwner && before.delegStatus !== after.delegStatus)
+    jobs.push(notify(after.assigneeUid, `${after.ownerName || "Керівник"}: ${OWNER_SAYS[after.delegStatus] || STATUS[after.delegStatus] || after.delegStatus}`, after.title, { taskId: id, kind: "status" }));
   if (!applied && byOwner && before.title !== after.title)
     jobs.push(notify(after.assigneeUid, "Доручення змінено", after.title, { taskId: id, kind: "edit" }));
   return Promise.all(jobs);
